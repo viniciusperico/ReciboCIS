@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo CIS Ivaiporã</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <img src="logo-cis-1.png" alt="Logo CIS Ivaiporã" class="logo">
+        <h1>RECIBO CIS IVAIPORÃ</h1>
+        <h2>Login</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="municipality">Município</label>
+                <select id="municipality" name="municipality" required>
+                    <option value="">Selecione o município</option>
+                    <option value="Arapuã">Arapuã</option>
+                    <option value="Ariranha do Ivai">Ariranha do Ivai</option>
+                    <option value="Cândido de Abreu">Cândido de Abreu</option>
+                    <option value="Cruzmaltina">Cruzmaltina</option>
+                    <option value="Godoy Moreira">Godoy Moreira</option>
+                    <option value="Ivaiporã">Ivaiporã</option>
+                    <option value="Jardim Alegre">Jardim Alegre</option>
+                    <option value="Lidianópolis">Lidianópolis</option>
+                    <option value="Lunardelli">Lunardelli</option>
+                    <option value="Manoel Ribas">Manoel Ribas</option>
+                    <option value="Mato Rico">Mato Rico</option>
+                    <option value="Nova Tebas">Nova Tebas</option>
+                    <option value="Rio Branco do Ivaí">Rio Branco do Ivaí</option>
+                    <option value="Rosário do Ivaí">Rosário do Ivaí</option>
+                    <option value="Santa Maria do Oeste">Santa Maria do Oeste</option>
+                    <option value="São João do Ivaí">São João do Ivaí</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Entrar</button>
+            <p id="error-message" class="error-message"></p>
+        </form>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 - CIS IVAIPORÃ. Todos os direitos reservados.</p>
+            <p>Desenvolvido por Vinicius Périco</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    
+</body>
+</html>

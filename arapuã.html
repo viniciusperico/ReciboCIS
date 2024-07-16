@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arapuã - CIS IVAIPORA</title>
+    <link rel="stylesheet" href="arapua.css">
+
+    <script>
+        function formatarMoeda() {
+            var inputValor = document.getElementById("valor");
+            var valor = inputValor.value.replace(/\D/g, ''); 
+
+            valor = parseFloat(valor) / 100;
+            if (!isNaN(valor)) {
+                inputValor.value = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            } else {
+                inputValor.value = '';
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <div class="content-container">
+        <h1>Recibo de Arapuã</h1>
+
+        <h2>Formulário de Recibo</h2>
+        <form action="submit.php" method="POST">
+            <div class="form-group">
+                <label for="nome">Nome do Responsável :</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="funcao">Função/Cargo no Município:</label>
+                <input type="text" id="funcao" name="funcao" required>
+            </div>
+            <div class="form-group">
+                <label for="tipo-recibo">Tipo de Recibo:</label>
+                <select id="tipo-recibo" name="tipo-recibo" required>
+                    <option value="">Selecione...</option>
+                    <option value="Crédito antecipado de serviços de consultas e exames especializados">Crédito antecipado de serviços de consultas e exames especializados</option>
+                    <option value="Repasse Mensal">Repasse Mensal</option>
+                    <option value="Locação de imóvel destinado ao programa QualiCIS">Locação de imóvel destinado ao programa QualiCIS</option>
+                    <option value="Crédito antecipado de serviços de transporte de pacientes">Crédito antecipado de serviços de transporte de pacientes</option>
+                    <option value="Pagamento de hospedagem em Casa de Apoio">Pagamento de hospedagem em Casa de Apoio</option>
+                    <option value="Parcelas da contrapartida do Convênio QualiCIS">Parcelas da contrapartida do Convênio QualiCIS</option>
+                    <option value="Pagamento de complemento de itens de Órtese e Próteses">Pagamento de complemento de itens de Órtese e Próteses</option>
+                    <option value="Pagamento de Contrato de Programa">Pagamento de Contrato de Programa</option>
+                    <option value="Pagamento de complemento de óculos">Pagamento de complemento de óculos</option>
+                    <option value="Pagamento de complemento de bolsas de colostomia">Pagamento de complemento de bolsas de colostomia</option>
+
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="data-recibo">Data do Recibo:</label>
+                <input type="date" id="data-recibo" name="data-recibo" required>
+            </div>
+            <div class="form-group">
+                <label for="mes-referencia">Mês de Referência:</label>
+                <select id="mes-referencia" name="mes-referencia" required>
+                    <option value="">Selecione...</option>
+                    <option value="Janeiro">Janeiro</option>
+                    <option value="Fevereiro">Fevereiro</option>
+                    <option value="Março">Março</option>
+                    <option value="Abril">Abril</option>
+                    <option value="Maio">Maio</option>
+                    <option value="Junho">Junho</option>
+                    <option value="Julho">Julho</option>
+                    <option value="Agosto">Agosto</option>
+                    <option value="Setembro">Setembro</option>
+                    <option value="Outubro">Outubro</option>
+                    <option value="Novembro">Novembro</option>
+                    <option value="Dezembro">Dezembro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor R$:</label>
+                <input type="text" id="valor" name="valor" oninput="formatarMoeda()">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="detalhamento">Detalhamento: (opcional)</label>
+                <textarea id="detalhamento" name="detalhamento" rows="4" placeholder="Descreva detalhes adicionais, se necessário..."></textarea>
+            </div>
+                      
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 - CIS IVAIPORÃ. Todos os direitos reservados.</p>
+            <p>Desenvolvido por Vinicius Périco</p>
+        </div>
+    </footer>
+</body>
+</html>
