@@ -1,26 +1,23 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
+.TelaLogin{
+    height: 100vh;
+    background-color: #1c6ea4;
+    display: flex ;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    flex-direction: column;
 }
 
-/* Estilos do contêiner geral */
 .login-geral {
     background-color: #ffffff;
     padding: 40px 50px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
+    max-width: 500px;
     width: 100%;
     text-align: center;
     margin-bottom: 20px;
 }
 
-/* Estilos do título */
+
 .login-geral h2 {
     font-size: 26px;
     color: #333;
@@ -28,7 +25,6 @@ body {
     font-weight: bold;
 }
 
-/* Estilos do formulário */
 .login-form .form-group {
     margin-bottom: 20px;
     text-align: left;
@@ -57,7 +53,6 @@ body {
     outline: none;
 }
 
-/* Estilos do botão */
 .login-button {
     width: 100%;
     padding: 14px;
