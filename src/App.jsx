@@ -1,23 +1,23 @@
 import { useState } from "react";
 import "./App.css";
-import TelaLogin from "./Pages/Login/Login";
-import Footer from "./Components/Footer/Footer";
+import TelaLogin from "./Pages/Login/TelaLogin";
 
 function App() {
   const [] = useState(0);
 
   return (
-    <>
+    <div className="App">
       <TelaLogin />
-    
-    
-    
-    
-    
-    
-    
-    
-    \ </>
+
+
+
+
+
+
+
+
+      
+    </div>
   );
 }
 
