@@ -1,23 +1,17 @@
-import { useState } from "react";
 import "./App.css";
 import TelaLogin from "./Pages/Login/TelaLogin";
+import Home from "./Pages/Home/Home";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
-  const [] = useState(0);
 
   return (
-    <div className="App">
-      <TelaLogin />
-
-
-
-
-
-
-
-
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<TelaLogin />} />
+        <Route path="/recibos" element={<Home />} />
+      </Routes>
+    </Router>
   );
 }
 
