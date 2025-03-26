@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { ref, get, set, push } from "firebase/database";
 import { db } from "../database/firebaseConfig"; 
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import logo from '../assets/images/logo-cis-1.png';
+import extenso from "extenso"; 
 
 
 const gerarNumeroRecibo = async () => {
@@ -26,6 +28,7 @@ const salvarReciboNoFirebase = async (dados, numeroRecibo) => {
   console.log("Recibo salvo com sucesso!");
 };
 
+
 function download(data, filename, type) {
   const blob = new Blob([data], { type });
   const url = URL.createObjectURL(blob);
@@ -38,7 +41,7 @@ function download(data, filename, type) {
   URL.revokeObjectURL(url); // Limpeza do objeto
 }
 
-const gerarRecibo = async (dados) => {
+const gerarRecibo = async (dados, limparFormulario) => {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // Tamanho A4 padrão
   const { width, height } = page.getSize();
@@ -129,7 +132,10 @@ const gerarRecibo = async (dados) => {
 
   // Salvando PDF
   const pdfBytes = await pdfDoc.save();
-  download(pdfBytes, `Recibo_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
+  download(pdfBytes, `ReciboCIS_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
+
+  limparFormulario();
+
 };
 
 const ReciboForm = () => {
@@ -142,7 +148,18 @@ const ReciboForm = () => {
   const [data, setData] = useState(""); 
   const [valor, setValor] = useState(""); 
   const [detalhes, setDetalhes] = useState(""); 
+  const [valorExtenso, setValorExtenso] = useState(""); 
 
+  const limparFormulario = () => {
+    setName("");
+    setCargo("");
+    setSelectedCategory("");
+    setSelectedProduct("");
+    setMesRef("");
+    setData("");
+    setValor("");
+  };
+  
   const productsByCategory = {
     Arapuã: [
       "Crédito antecipado de serviços de consultas e exames especializados, sendo o depósito no Banco do Brasil, agência: 0633-5, conta corrente: 38607-3",
@@ -379,17 +396,31 @@ const ReciboForm = () => {
     setSelectedProduct(e.target.value); 
   };
 
-const handleValueChange = (e) => {
-    let inputValue = e.target.value;
+  const handleValueChange = (e) => {
+    let inputValue = e.target.value.replace(/\D/g, ""); // Remove caracteres não numéricos
 
-    inputValue = inputValue.replace(/\D/g, "");
+    if (inputValue) {
+      const reais = Math.floor(parseInt(inputValue) / 100);
+      const centavos = parseInt(inputValue) % 100;
 
-    const formattedValue = (inputValue / 100).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+      const formattedValue = (parseInt(inputValue) / 100).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
-    setValor(formattedValue);
+      setValor(formattedValue);
+
+      let valorPorExtenso = extenso(reais, { mode: "currency" });
+      
+      if (centavos > 0) {
+        valorPorExtenso += ` e ${extenso(centavos)} centavos`;
+      }
+
+      setValorExtenso(valorPorExtenso);
+    } else {
+      setValor("");
+      setValorExtenso("");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -400,16 +431,19 @@ const handleValueChange = (e) => {
       selectedCategory,
       selectedProduct,
       mesRef,
-      data,
+      data, 
       valor,
+      valorExtenso, // Incluindo no log
       detalhes,
     });
   };
 
   return (
+    <>
     <div className="home">
     <div className="container-home">
-      <h2 className="titulo-home">RECIBO ONLINE CIS</h2>
+      <img src={logo} alt="Logo CIS" className="logo-home" />
+      <h2 className="titulo-home">RECIBO ONLINE</h2>
       <form className="form-recibo" onSubmit={handleSubmit}>
         <label htmlFor="name">Nome:</label>
         <input
@@ -503,16 +537,16 @@ const handleValueChange = (e) => {
           required
         />
 
-        <label htmlFor="valor">Valor (R$):</label>
-        <input
-          id="valor"
-          type="text"
-          value={valor}
-          onChange={handleValueChange}
-          required
-        />
+<label htmlFor="valor">Valor (R$):</label>
+      <input
+        id="valor"
+        type="text"
+        value={valor} 
+        onChange={handleValueChange}
+        required
+      />
 
-        <label htmlFor="detalhes">Detalhamento: (opcional)</label>
+        <label htmlFor="detalhes">Detalhamento: <span className="opcional">(Opcional)</span></label>
         <input
           id="detalhes"
           type="text"
@@ -520,15 +554,22 @@ const handleValueChange = (e) => {
           onChange={(e) => setDetalhes(e.target.value)}
         />
 
-<button
-  type="button"
-  onClick={() => gerarRecibo({ name, cargo, selectedCategory, selectedProduct, mesRef, data, valor})}>
-  Gerar PDF
-</button>
+  <button
+    type="button"
+    onClick={() => gerarRecibo({ name, cargo, selectedCategory, selectedProduct, mesRef, data, valor }, limparFormulario)}>
+    Gerar PDF
+  </button>
       </form>
     </div>
     </div>
+    
+     <footer className="footer-home">
+     <p>&copy; {new Date().getFullYear()} CIS Ivaiporã. Todos os direitos reservados.</p>
+     <p>Desenvolvido por Vinicius Périco</p>
+   </footer>
+    </>
   );
+  
 };
 
 export default ReciboForm;
