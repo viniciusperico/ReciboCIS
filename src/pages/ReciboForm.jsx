@@ -5,7 +5,65 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import logo from '../assets/images/logo-cis-1.png';
 import extenso from "extenso"; 
 
+const gerarNumeroRecibo = async () => {
+  const reciboRef = ref(db, "contadorRecibos");
+  const snapshot = await get(reciboRef);
+  let numeroRecibo = snapshot.exists() ? snapshot.val() + 1 : 1;
+ 
+  await set(reciboRef, numeroRecibo);
+  return `${numeroRecibo}-2025`;
+};
 
+const salvarReciboNoFirebase = async (dados, numeroRecibo) => {
+  const recibosRef = ref(db, "recibos");
+  await push(recibosRef, {
+    numeroRecibo,
+    ...dados,
+    dataHora: new Date().toISOString()
+  });
+};
+
+const download = (data, filename, type) => {
+  const blob = new Blob([data], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+const gerarRecibo = async (dados, limparFormulario) => {
+  const safeText = (text) => text ? text.toString() : "";
+
+  const existingPdfBytes = await fetch('/PadraodeRecibo.pdf').then(res => res.arrayBuffer());
+  const pdfDoc = await PDFDocument.load(existingPdfBytes);
+  const page = pdfDoc.getPages()[0];
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const numeroRecibo = await gerarNumeroRecibo();
+
+  await salvarReciboNoFirebase(dados, numeroRecibo);
+
+  // Ajustando as posições conforme o documento recebido
+  page.drawText(safeText(numeroRecibo), { x: 150, y: 680, size: 12, font }); // Nº RECIBO
+  page.drawText(`R$ ${safeText(dados.valor)}`, { x: 150, y: 650, size: 12, font }); // VALOR DO RECIBO
+  page.drawText(`(${safeText(dados.valorExtenso)})`, { x: 300, y: 650, size: 12, font }); // Valor Extenso
+  page.drawText(safeText(dados.selectedProduct), { x: 150, y: 620, size: 12, font }); // Produto
+
+  const declaracao = `Declaramos que recebemos a importância de R$ ${safeText(dados.valor)}, da Prefeitura Municipal de ${safeText(dados.selectedCategory)} referente a ${safeText(dados.selectedProduct)} ${safeText(dados.mesRef)} para o Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.`;
+  page.drawText(declaracao, { x: 100, y: 580, size: 10, font, maxWidth: 400 }); // Texto da declaração
+
+  page.drawText(safeText(dados.detalhes), { x: 100, y: 540, size: 10, font, maxWidth: 400 }); // Detalhes
+  page.drawText(`Ivaiporã, ${safeText(dados.data)}`, { x: 350, y: 500, size: 12, font }); // Data
+
+  const pdfBytes = await pdfDoc.save();
+  download(pdfBytes, `ReciboCIS_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
+
+  limparFormulario();
+};
+/*
 const gerarNumeroRecibo = async () => {
   const reciboRef = ref(db, "contadorRecibos");
   const snapshot = await get(reciboRef);
@@ -137,7 +195,7 @@ const gerarRecibo = async (dados, limparFormulario) => {
   limparFormulario();
 
 };
-
+*/
 const ReciboForm = () => {
 
   const [selectedCategory, setSelectedCategory] = useState(""); 
@@ -443,7 +501,7 @@ const ReciboForm = () => {
     <div className="home">
     <div className="container-home">
       <img src={logo} alt="Logo CIS" className="logo-home" />
-      <h2 className="titulo-home">RECIBO ONLINE</h2>
+      <h2 className="titulo-home">RECIBO CIS</h2>
       <form className="form-recibo" onSubmit={handleSubmit}>
         <label htmlFor="name">Nome:</label>
         <input
