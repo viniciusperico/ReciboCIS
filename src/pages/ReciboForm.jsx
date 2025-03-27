@@ -38,7 +38,7 @@ const download = (data, filename, type) => {
 const gerarRecibo = async (dados, limparFormulario) => {
   const safeText = (text) => text ? text.toString() : "";
 
-  const existingPdfBytes = await fetch('/PadraodeRecibo.pdf').then(res => res.arrayBuffer());
+  const existingPdfBytes = await fetch('/PadraoRecibo.pdf').then(res => res.arrayBuffer());
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   const page = pdfDoc.getPages()[0];
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -47,22 +47,42 @@ const gerarRecibo = async (dados, limparFormulario) => {
   await salvarReciboNoFirebase(dados, numeroRecibo);
 
   // Ajustando as posições conforme o documento recebido
-  page.drawText(safeText(numeroRecibo), { x: 150, y: 680, size: 12, font }); // Nº RECIBO
-  page.drawText(`R$ ${safeText(dados.valor)}`, { x: 150, y: 650, size: 12, font }); // VALOR DO RECIBO
-  page.drawText(`(${safeText(dados.valorExtenso)})`, { x: 300, y: 650, size: 12, font }); // Valor Extenso
-  page.drawText(safeText(dados.selectedProduct), { x: 150, y: 620, size: 12, font }); // Produto
+  page.drawText(`N° DO RECIBO: ${safeText(numeroRecibo)}`, { x: 151, y: 1, size: 12, font }); // Nº RECIBO (Topo Direito)
+  page.drawText(`VALOR DO RECIBO: ${safeText(dados.valor)}`, { x: 100, y: 700, size: 14, font }); // VALOR DO RECIBO (Destaque)
+  page.drawText(`(${safeText(dados.valorExtenso)})`, { x: 100, y: 680, size: 10, font, maxWidth: 400 }); // Valor Extenso
 
   const declaracao = `Declaramos que recebemos a importância de R$ ${safeText(dados.valor)}, da Prefeitura Municipal de ${safeText(dados.selectedCategory)} referente a ${safeText(dados.selectedProduct)} ${safeText(dados.mesRef)} para o Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.`;
-  page.drawText(declaracao, { x: 100, y: 580, size: 10, font, maxWidth: 400 }); // Texto da declaração
 
-  page.drawText(safeText(dados.detalhes), { x: 100, y: 540, size: 10, font, maxWidth: 400 }); // Detalhes
-  page.drawText(`Ivaiporã, ${safeText(dados.data)}`, { x: 350, y: 500, size: 12, font }); // Data
+  const maxWidth = 400;
+  const lineHeight = 12;
+  const words = declaracao.split(" ");
+  let line = "";
+  let y = 600;
+  
+  for (let word of words) {
+    let testLine = line + word + " ";
+    let testWidth = font.widthOfTextAtSize(testLine, 10);
+    
+    if (testWidth > maxWidth) {
+      page.drawText(line.trim(), { x: 100, y, size: 10, font });
+      line = word + " ";
+      y -= lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  page.drawText(line.trim(), { x: 100, y, size: 10, font });
 
+  page.drawText(safeText(dados.detalhes), { x: 100, y: y - 20, size: 10, font, maxWidth: 400 }); // Detalhes
+  page.drawText(`Ivaiporã, ${safeText(dados.data)}`, { x: 380, y: y - 60, size: 12, font }); // Data
+  
   const pdfBytes = await pdfDoc.save();
   download(pdfBytes, `ReciboCIS_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
 
   limparFormulario();
 };
+
+
 /*
 const gerarNumeroRecibo = async () => {
   const reciboRef = ref(db, "contadorRecibos");
@@ -491,7 +511,7 @@ const ReciboForm = () => {
       mesRef,
       data, 
       valor,
-      valorExtenso, // Incluindo no log
+      valorExtenso, 
       detalhes,
     });
   };
