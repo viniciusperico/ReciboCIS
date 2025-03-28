@@ -46,176 +46,40 @@ const gerarRecibo = async (dados, limparFormulario) => {
 
   await salvarReciboNoFirebase(dados, numeroRecibo);
 
-  // Ajustando as posições conforme o documento recebido
-  page.drawText(`N° DO RECIBO: ${safeText(numeroRecibo)}`, { x: 151, y: 1, size: 12, font }); // Nº RECIBO (Topo Direito)
-  page.drawText(`VALOR DO RECIBO: ${safeText(dados.valor)}`, { x: 100, y: 700, size: 14, font }); // VALOR DO RECIBO (Destaque)
-  page.drawText(`(${safeText(dados.valorExtenso)})`, { x: 100, y: 680, size: 10, font, maxWidth: 400 }); // Valor Extenso
+  // Ajuste das posições dos textos no recibo em pdf
 
-  const declaracao = `Declaramos que recebemos a importância de R$ ${safeText(dados.valor)}, da Prefeitura Municipal de ${safeText(dados.selectedCategory)} referente a ${safeText(dados.selectedProduct)} ${safeText(dados.mesRef)} para o Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.`;
-
-  const maxWidth = 400;
-  const lineHeight = 12;
-  const words = declaracao.split(" ");
-  let line = "";
-  let y = 600;
+  // Nº RECIBO
+  page.drawText(`N° DO RECIBO: ${safeText(numeroRecibo)}`, { x: 80, y: 735, size: 12}); 
   
-  for (let word of words) {
-    let testLine = line + word + " ";
-    let testWidth = font.widthOfTextAtSize(testLine, 10);
-    
-    if (testWidth > maxWidth) {
-      page.drawText(line.trim(), { x: 100, y, size: 10, font });
-      line = word + " ";
-      y -= lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  page.drawText(line.trim(), { x: 100, y, size: 10, font });
+//VALOR DO RECIBO E VALOR EM EXTENSO
 
-  page.drawText(safeText(dados.detalhes), { x: 100, y: y - 20, size: 10, font, maxWidth: 400 }); // Detalhes
-  page.drawText(`Ivaiporã, ${safeText(dados.data)}`, { x: 380, y: y - 60, size: 12, font }); // Data
-  
+// TIPO DO RECIBO EM BAIXO (TENTAR VINCULAR DE ALGUMA FORMA)
+
+// DESCRIÇÃO DO CONTEUDO DO RECIBO
+
+const textoRecibo = `Declaramos que recebemos a importância de R$ ${safeText(dados.valor)} (${safeText(dados.valorExtenso)}), 
+da Prefeitura Municipal de ${safeText(dados.selectedCategory)}, referente a ${safeText(dados.selectedProduct)}, 
+referente ao mês de: ${safeText(dados.mesRef)} para o Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.`;
+
+page.drawText(textoRecibo, { x: 80, y: 650, size: 12, font, maxWidth: 450, lineHeight: 16 });
+
+
+// DETALHES
+
+// RODAPÉ
+  page.drawText(`Ivaiporã, ${formatarData(safeText(dados.data))}`, { x: 400, y: 250, size: 10, font }); 
+
   const pdfBytes = await pdfDoc.save();
   download(pdfBytes, `ReciboCIS_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
 
   limparFormulario();
 };
 
-
-/*
-const gerarNumeroRecibo = async () => {
-  const reciboRef = ref(db, "contadorRecibos");
-  const snapshot = await get(reciboRef);
-  let numeroRecibo = snapshot.exists() ? snapshot.val() + 1 : 1;
-
-  await set(reciboRef, numeroRecibo);
-  return `${numeroRecibo}-2025`;
+const formatarData = (dataISO) => {
+  const [ano, mes, dia] = dataISO.split('-');
+  return `${dia}/${mes}/${ano}`;
 };
 
-const salvarReciboNoFirebase = async (dados, numeroRecibo) => {
-  const recibosRef = ref(db, "recibos");
-  console.log("Salvando no Firebase:", { numeroRecibo, ...dados });
-
-  await push(recibosRef, {
-    numeroRecibo,
-    ...dados,
-    dataHora: new Date().toISOString()
-  });
-
-  console.log("Recibo salvo com sucesso!");
-};
-
-
-function download(data, filename, type) {
-  const blob = new Blob([data], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url); // Limpeza do objeto
-}
-
-const gerarRecibo = async (dados, limparFormulario) => {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595.28, 841.89]); // Tamanho A4 padrão
-  const { width, height } = page.getSize();
-  const numeroRecibo = await gerarNumeroRecibo();
-
-  // Salvando recibo no Firebase (simulação)
-  await salvarReciboNoFirebase(dados, numeroRecibo);
-  console.log("Gerando PDF para recibo:", numeroRecibo);
-
-  // Fonte e cores
-  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
-
-  // Adicionando número do recibo
-  page.drawText(`Nº do Recibo: ${numeroRecibo}`, { x: 20, y: height - 60, size: 12, font: helvetica });
-
-
-  // Cabeçalho
-  page.drawText('CONSÓRCIO INTERMUNICIPAL DE SAÚDE DA 22ª REG. DE SAÚDE DE IVAIPORÃ', {
-    x: width / 2 - 190,
-    y: height - 100,
-    size: 10,
-    font: helveticaBold,
-  });
-  page.drawText('CNPJ: 02.586.019/0001-97', {
-    x: width / 2 - 60,
-    y: height - 115,
-    size: 10,
-    font: helveticaBold,
-  });
-
-  // Linha separadora
-  page.drawLine({
-    start: { x: 20, y: height - 125 },
-    end: { x: width - 20, y: height - 125 },
-    thickness: 0.5,
-    color: rgb(0, 0, 0),
-  });
-
-  // Valor do recibo
-  page.drawText(`VALOR DO RECIBO: ${dados.valor}`, { x: 20, y: height - 145, size: 12, font: helveticaBold });
-
-  // Tipo do recibo
-  page.drawText(`${dados.selectedProduct}`, { x: 20, y: height - 165, size: 12, font: helveticaBold });
-
-  // Corpo do recibo
-  const corpoRecibo = [
-    `Declaramos que recebemos a importância de ${dados.valor}, da Prefeitura`,
-    `Municipal de ${dados.selectedCategory}, referente a ${dados.detalhes}, ${dados.mesRef} para o`,
-    'Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.',
-  ];
-
-  let y = height - 185;
-  corpoRecibo.forEach((line) => {
-    page.drawText(line, { x: 20, y: y, size: 12, font: helvetica });
-    y -= 15;
-  });
-
-  // Detalhes adicionais, se houver
-  if (dados.detalhes) {
-    page.drawText(dados.detalhes, { x: 20, y: y, size: 12, font: helvetica });
-    y -= 15;
-  }
-
-  // Data
-  page.drawText(`Ivaiporã, ${dados.data}`, { x: 20, y: y - 20, size: 12, font: helvetica });
-
-  // Carimbo interno
-  page.drawLine({
-    start: { x: 80, y: y - 60 },
-    end: { x: 130, y: y - 60 },
-    thickness: 1,
-  });
-  page.drawText('(Carimbo interno do CIS)', { x: 85, y: y - 65, size: 12, font: helvetica });
-
-  // Rodapé
-  const rodape = [
-    'CONSÓRCIO INTERMUNICIPAL DE SAÚDE DA 22ª REG. DE SAÚDE DE IVAIPORÃ',
-    'Rua Professora Diva Proença, 500. Centro, Ivaiporã/PR',
-    'CNPJ: 02.586.019/0001-97',
-  ];
-  y -= 100;
-
-  rodape.forEach((line) => {
-    page.drawText(line, { x: width / 2 - 190, y: y, size: 10, font: helveticaBold });
-    y -= 15;
-  });
-
-  // Salvando PDF
-  const pdfBytes = await pdfDoc.save();
-  download(pdfBytes, `ReciboCIS_${dados.selectedCategory}_${dados.data}.pdf`, 'application/pdf');
-
-  limparFormulario();
-
-};
-*/
 const ReciboForm = () => {
 
   const [selectedCategory, setSelectedCategory] = useState(""); 
@@ -466,41 +330,43 @@ const ReciboForm = () => {
   };
 
   const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value); 
+    setSelectedCategory(e.target.value);
     setSelectedProduct(""); 
   };
-
+  
   const handleProductChange = (e) => {
     setSelectedProduct(e.target.value); 
   };
-
+  
   const handleValueChange = (e) => {
     let inputValue = e.target.value.replace(/\D/g, ""); // Remove caracteres não numéricos
-
+  
     if (inputValue) {
       const reais = Math.floor(parseInt(inputValue) / 100);
       const centavos = parseInt(inputValue) % 100;
-
+  
+      // Formata o valor como moeda
       const formattedValue = (parseInt(inputValue) / 100).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL",
       });
-
-      setValor(formattedValue);
-
+  
+      setValor(formattedValue); // Atualiza o valor
+  
+      // Gera o valor por extenso
       let valorPorExtenso = extenso(reais, { mode: "currency" });
-      
+  
       if (centavos > 0) {
         valorPorExtenso += ` e ${extenso(centavos)} centavos`;
       }
-
-      setValorExtenso(valorPorExtenso);
+  
+      setValorExtenso(valorPorExtenso); // Atualiza o valor por extenso
     } else {
-      setValor("");
-      setValorExtenso("");
+      setValor(""); // Limpa o valor formatado
+      setValorExtenso(""); // Limpa o valor por extenso
     }
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log({
@@ -510,8 +376,8 @@ const ReciboForm = () => {
       selectedProduct,
       mesRef,
       data, 
-      valor,
-      valorExtenso, 
+      valor,            // Valor formatado
+      valorExtenso,     // Valor por extenso
       detalhes,
     });
   };
@@ -642,8 +508,8 @@ const ReciboForm = () => {
     </div>
     
      <footer className="footer-home">
-     <p>&copy; {new Date().getFullYear()} CIS Ivaiporã. Todos os direitos reservados.</p>
      <p>Desenvolvido por Vinicius Périco</p>
+     <p>&copy; {new Date().getFullYear()} CIS Ivaiporã.</p>
    </footer>
     </>
   );
