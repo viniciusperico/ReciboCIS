@@ -57,12 +57,52 @@ const gerarRecibo = async (dados, limparFormulario) => {
 
 // DESCRIÇÃO DO CONTEUDO DO RECIBO
 
+function justifyText(text, x, y, maxWidth, lineHeight, font, page, fontSize) {
+  text = text.replace(/\n/g, ' '); // Remove quebras de linha
+
+  const words = text.split(' ');
+  let line = '';
+  let lines = [];
+  const spaceWidth = font.widthOfTextAtSize(' ', fontSize);
+
+  words.forEach(word => {
+      let testLine = line ? line + ' ' + word : word;
+      let testWidth = font.widthOfTextAtSize(testLine, fontSize);
+
+      if (testWidth < maxWidth) {
+          line = testLine;
+      } else {
+          lines.push(line);
+          line = word;
+      }
+  });
+  lines.push(line);
+
+  lines.forEach((line, index) => {
+      let lineWidth = font.widthOfTextAtSize(line, fontSize);
+      let extraSpace = maxWidth - lineWidth;
+      let wordsInLine = line.split(' ');
+      let spacesToAdd = wordsInLine.length - 1;
+
+      let justifiedText = '';
+
+      if (spacesToAdd > 0 && index < lines.length - 1) {
+          let spaceBetweenWords = spaceWidth + extraSpace / spacesToAdd;
+          justifiedText = wordsInLine.join(' '.repeat(Math.round(spaceBetweenWords / spaceWidth)));
+      } else {
+          justifiedText = line;
+      }
+
+      page.drawText(justifiedText, { x, y, size: fontSize, font });
+      y -= lineHeight;
+  });
+}
+
 const textoRecibo = `Declaramos que recebemos a importância de R$ ${safeText(dados.valor)} (${safeText(dados.valorExtenso)}), 
 da Prefeitura Municipal de ${safeText(dados.selectedCategory)}, referente a ${safeText(dados.selectedProduct)}, 
 referente ao mês de: ${safeText(dados.mesRef)} para o Consórcio Intermunicipal de Saúde da 22ª Regional de Saúde de Ivaiporã.`;
 
-page.drawText(textoRecibo, { x: 80, y: 650, size: 12, font, maxWidth: 450, lineHeight: 16 });
-
+justifyText(textoRecibo, 80, 650, 450, 16, font, page, 11);
 
 // DETALHES
 
@@ -460,7 +500,7 @@ const ReciboForm = () => {
           <option value="">Selecione um mês</option>
           <option value="janeiro">Janeiro</option>
           <option value="fevereiro">Fevereiro</option>
-          <option value="marco">Março</option>
+          <option value="março">Março</option>
           <option value="abril">Abril</option>
           <option value="maio">Maio</option>
           <option value="junho">Junho</option>
@@ -509,7 +549,7 @@ const ReciboForm = () => {
     
      <footer className="footer-home">
      <p>Desenvolvido por Vinicius Périco</p>
-     <p>&copy; {new Date().getFullYear()} CIS Ivaiporã.</p>
+     <p>&copy; {new Date().getFullYear()} Tech Systems Ivaiporã. || CNPJ: 60.847.434/0001-53 </p>
    </footer>
     </>
   );
