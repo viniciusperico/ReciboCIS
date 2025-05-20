@@ -4,6 +4,8 @@ import { db } from "../database/firebaseConfig";
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import logo from '../assets/images/logo-cis-1.png';
 import extenso from "extenso"; 
+import "../assets/styles/ReciboForm.css";
+
 
 const gerarNumeroRecibo = async () => {
   const reciboRef = ref(db, "contadorRecibos");
