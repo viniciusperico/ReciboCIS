@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ref, get, set, push } from "firebase/database";
 import { db } from "../database/firebaseConfig";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import logo from "../assets/images/logo-cis-1.png";
 import extenso from "extenso";
 import "../assets/styles/ReciboForm.css";
 
@@ -678,22 +679,15 @@ referente ao mês de: ${safeText(
     const [ano, mes, dia] = dataISO.split("-");
     return `${dia}/${mes}/${ano}`;
   };
+
   return (
-    <div className="recibo-container">
-      <div className="recibo-card">
-        <h1>📄 Recibo CIS</h1>
-        <p className="subtitulo"></p>
-
-        <h2>Novo Recibo</h2>
-        <p className="instrucoes">
-          Preencha os dados abaixo para gerar o seu recibo em PDF.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>
-              <i className="fas fa-user"></i> Nome
-            </label>
+    <>
+      <div className="home">
+        <div className="container-home">
+          <img src={logo} alt="Logo CIS" className="logo-home" />
+          <h2 className="titulo-home">RECIBO CIS</h2>
+          <form className="form-recibo" onSubmit={handleSubmit}>
+            <label htmlFor="name">Nome:</label>
             <input
               id="name"
               type="text"
@@ -701,120 +695,60 @@ referente ao mês de: ${safeText(
               onChange={(e) => setName(e.target.value)}
               required
             />
-          </div>
 
-          <div className="row">
-            <div className="form-group">
-              <label>
-                <i className="fas fa-briefcase"></i> Cargo exercido
-              </label>
-              <input
-                id="cargo"
-                type="text"
-                value={cargo}
-                onChange={(e) => setCargo(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>
-                <i className="fas fa-map-marker-alt"></i> Município
-              </label>
-              <select
-                id="category"
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-                required
-              >
-                <option value="">Selecione um Municipio</option>
-                <option value="Arapuã">Arapuã</option>
-                <option value="Ariranha_do_Ivaí">Ariranha do Ivaí</option>
-                <option value="Cândido_de_Abreu">Cândido de Abreu</option>
-                <option value="Cruzmaltina">Cruzmaltina</option>
-                <option value="Godoy_Moreira">Godoy Moreira</option>
-                <option value="Ivaiporã">Ivaiporã</option>
-                <option value="Jardim_Alegre">Jardim Alegre</option>
-                <option value="Lidianópolis">Lidianópolis</option>
-                <option value="Lunardelli">Lunardelli</option>
-                <option value="Manoel_Ribas">Manoel Ribas</option>
-                <option value="Mato_Rico">Mato Rico</option>
-                <option value="Nova_Tebas">Nova Tebas</option>
-                <option value="Rio_Branco_do_Ivaí">Rio Branco do Ivaí</option>
-                <option value="Rosário_do_Ivaí">Rosário do Ivaí</option>
-                <option value="Santa_Maria_do_Oeste">
-                  Santa Maria do Oeste
-                </option>
-                <option value="São_João_do_Ivaí">São João do Ivaí</option>
-              </select>
-            </div>
-          </div>
+            <label htmlFor="cargo">Cargo exercido:</label>
+            <input
+              id="cargo"
+              type="text"
+              value={cargo}
+              onChange={(e) => setCargo(e.target.value)}
+              required
+            />
 
-          <div className="row">
-            <div className="form-group">
-              <label>
-                <i className="fas fa-receipt"></i> Tipo de Recibo
-              </label>
-              <select
-                id="product"
-                value={selectedProduct}
-                onChange={handleProductChange}
-                disabled={!selectedCategory}
-                required
-              >
-                <option value="">Selecione um Tipo</option>
-                {selectedCategory &&
-                  productsByCategory[selectedCategory].map((product, index) => (
-                    <option key={index} value={product}>
-                      {product}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            {/* <div className="form-group">
-              <label>
-                <i className="fas fa-university"></i> Conta Associada
-              </label>
-              <input
-                type="text"
-                name="conta"
-                placeholder="Conta (automática)"
-                value={formData.conta}
-                onChange={handleChange}
-              />
-            </div> */}
-          </div>
+            <label htmlFor="category">Municipio:</label>
+            <select
+              id="category"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              required
+            >
+              <option value="">Selecione um Municipio</option>
+              <option value="Arapuã">Arapuã</option>
+              <option value="Ariranha_do_Ivaí">Ariranha do Ivaí</option>
+              <option value="Cândido_de_Abreu">Cândido de Abreu</option>
+              <option value="Cruzmaltina">Cruzmaltina</option>
+              <option value="Godoy_Moreira">Godoy Moreira</option>
+              <option value="Ivaiporã">Ivaiporã</option>
+              <option value="Jardim_Alegre">Jardim Alegre</option>
+              <option value="Lidianópolis">Lidianópolis</option>
+              <option value="Lunardelli">Lunardelli</option>
+              <option value="Manoel_Ribas">Manoel Ribas</option>
+              <option value="Mato_Rico">Mato Rico</option>
+              <option value="Nova_Tebas">Nova Tebas</option>
+              <option value="Rio_Branco_do_Ivaí">Rio Branco do Ivaí</option>
+              <option value="Rosário_do_Ivaí">Rosário do Ivaí</option>
+              <option value="Santa_Maria_do_Oeste">Santa Maria do Oeste</option>
+              <option value="São_João_do_Ivaí">São João do Ivaí</option>
+            </select>
 
-          <div className="row">
-            <div className="form-group">
-              <label>
-                <i className="fas fa-calendar-alt"></i> Data do Recibo
-              </label>
-              <input
-                id="data"
-                type="date"
-                value={data}
-                onChange={(e) => setData(e.target.value)}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>
-                <i className="fas fa-dollar-sign"></i> Valor (R$)
-              </label>
-              <input
-                type="text"
-                id="valor"
-                value={valor}
-                onChange={handleValueChange}
-                required
-              />
-            </div>
-          </div>
+            <label htmlFor="product">Tipo do Recibo:</label>
+            <select
+              id="product"
+              value={selectedProduct}
+              onChange={handleProductChange}
+              disabled={!selectedCategory}
+              required
+            >
+              <option value="">Selecione um Tipo</option>
+              {selectedCategory &&
+                productsByCategory[selectedCategory].map((product, index) => (
+                  <option key={index} value={product}>
+                    {product}
+                  </option>
+                ))}
+            </select>
 
-          <div className="form-group">
-            <label>
-              <i className="fas fa-calendar"></i> Mês de referência
-            </label>
+            <label htmlFor="mes-ref">Mês de referência:</label>
             <select
               id="mes-ref"
               value={mesRef}
@@ -835,43 +769,64 @@ referente ao mês de: ${safeText(
               <option value="novembro">Novembro</option>
               <option value="dezembro">Dezembro</option>
             </select>
-          </div>
 
-          <div className="form-group">
-            <label>
-              <i className="fas fa-pencil-alt"></i> Detalhamento (Opcional)
+            <label htmlFor="data">Data do recibo:</label>
+            <input
+              id="data"
+              type="date"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              required
+            />
+
+            <label htmlFor="valor">Valor (R$):</label>
+            <input
+              id="valor"
+              type="text"
+              value={valor}
+              onChange={handleValueChange}
+              required
+            />
+
+            <label htmlFor="detalhes">
+              Detalhamento: <span className="opcional">(Opcional)</span>
             </label>
-            <textarea
+            <input
               id="detalhes"
-              placeholder="Descreva o motivo do recibo, ex: Pagamento referente a consulta de cardiologia"
+              type="text"
               value={detalhes}
               onChange={(e) => setDetalhes(e.target.value)}
             />
-          </div>
 
-          <button
-            type="button"
-            className="submit-button"
-            onClick={() =>
-              gerarRecibo(
-                {
-                  name,
-                  cargo,
-                  selectedCategory,
-                  selectedProduct,
-                  mesRef,
-                  data,
-                  valor,
-                },
-                limparFormulario
-              )
-            }
-          >
-            Gerar PDF e Salvar Recibo
-          </button>
-        </form>
+            <button
+              type="button"
+              onClick={() =>
+                gerarRecibo(
+                  {
+                    name,
+                    cargo,
+                    selectedCategory,
+                    selectedProduct,
+                    mesRef,
+                    data,
+                    valor,
+                  },
+                  limparFormulario
+                )
+              }
+            >
+              Gerar PDF
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <footer className="footer-home">
+        <p>
+          &copy; {new Date().getFullYear()} Desenvolvido por Vinicius Périco{" "}
+        </p>
+      </footer>
+    </>
   );
 };
 

@@ -4,14 +4,14 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDwP_I0GHH1nJLnpVNPk-Dd27cmSifZ8JQ",
-  authDomain: "recibocis.firebaseapp.com",
-  databaseURL: "https://recibocis-default-rtdb.firebaseio.com",
-  projectId: "recibocis",
-  storageBucket: "recibocis.firebasestorage.app",
-  messagingSenderId: "358833164194",
-  appId: "1:358833164194:web:082a19debb7bded7e22cfb",
-  measurementId: "G-DHGGREWYXW"
+  apiKey: "AIzaSyC60MXbbcSLZhIj33nGM53Yu9digDgCS3w",
+  authDomain: "ortese-e-protese.firebaseapp.com",
+  databaseURL: "https://ortese-e-protese-default-rtdb.firebaseio.com",
+  projectId: "ortese-e-protese",
+  storageBucket: "ortese-e-protese.firebasestorage.app",
+  messagingSenderId: "707763081056",
+  appId: "1:707763081056:web:d5d984210911bd36471805",
+  measurementId: "G-H9F90PX0X2"
 };
 
 const app = initializeApp(firebaseConfig);
